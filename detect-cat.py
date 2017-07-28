@@ -22,6 +22,7 @@ import config
 import iothub
 from datetime import datetime
 import base64
+import datetime
 
 
 headers = {
@@ -33,6 +34,7 @@ headers = {
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalcatface.xml')
 
 cap = cv2.VideoCapture(0)
+lastImageTime = datetime.datetime.now()
 
 
 params = ''
@@ -60,7 +62,7 @@ def on_message(client, userdata, msg):
 
 
 def on_publish(client, userdata, mid):
-    print("Message {0} sent from {1} at {2}".format(str(mid), cfg.deviceId, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+    print("Message {0} sent from {1} at {2}".format(str(mid), cfg.deviceId, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 
 def detectFace(img):
@@ -85,31 +87,42 @@ def getEmotion(img):
 
 
 def StartDetectingCats():
+    global lastImageTime
     count = 0
 
     while True:
-        print("Image: " + str(count))
+        print("Cycle: " + str(count))
+        # print(datetime.datetime.now().time())
+
         b, frame = cap.read()
-        facesDetected = detectFace(frame)
 
-        if len(facesDetected) > 0:
-            img=cv2.imencode('.jpg', frame)[1].tostring()
-            b64 = base64.b64encode(bytes(img))
+        if datetime.datetime.now() > lastImageTime + datetime.timedelta(0,3): # days, seconds, then other fields.
+            lastImageTime = datetime.datetime.now()
+            print("Image: " + str(count))
 
-            try:
-                json = '{"CameraLocation":"%s","location":{"type":"Point","coordinates":[%s]},"Image":"%s"}' % (cfg.cameraLocation, cfg.geoPoint, b64)
-                client.publish(iot.hubTopicPublish, json)
-            except KeyboardInterrupt:
-                print("IoTHubClient sample stopped")
-                return
-            except:
-                print("Unexpected error")
+            facesDetected = detectFace(frame)
 
-            print("Image: " + str(count) + " Found " + str(len(facesDetected)) + " face(s)")
-            sleep(20)
+            if len(facesDetected) > 0:
+                height, width = frame.shape[:2]
+                reducedImage = cv2.resize(frame, (width/2, height/2), interpolation = cv2.INTER_AREA)
+
+                img=cv2.imencode('.jpg', reducedImage)[1].tostring()
+                b64 = base64.b64encode(bytes(img))
+
+                try:
+                    json = '{"CameraLocation":"%s","location":{"type":"Point","coordinates":[%s]},"Image":"%s"}' % (cfg.cameraLocation, cfg.geoPoint, b64)
+                    client.publish(iot.hubTopicPublish, json)
+                except KeyboardInterrupt:
+                    print("IoTHubClient sample stopped")
+                    return
+                except:
+                    print("Unexpected error")
+
+                print("Image: " + str(count) + " Found " + str(len(facesDetected)) + " cat(s)")
+
 
         count=count + 1
-        sleep(5)
+        sleep(1)
 
 
 
