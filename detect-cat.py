@@ -92,25 +92,24 @@ def StartDetectingCats():
         b, frame = cap.read()
         facesDetected = detectFace(frame)
 
-        img=cv2.imencode('.jpg', frame)[1].tostring()
-        b64 = base64.b64encode(bytes(img))
-
-        try:
-            json = '{"CameraLocation":"%s","location":{"type":"Point","coordinates":[%s]},"Image":"%s"}' % (cfg.CameraLocation, cfg.GeoPoint, b64)
-            client.publish(iot.hubTopicPublish, json)
-        except KeyboardInterrupt:
-            print("IoTHubClient sample stopped")
-            return
-        except:
-            print("Unexpected error")
-            sleep(4)
-
         if len(facesDetected) > 0:
-            print "Image: " + str(count) + " Found " + str(len(facesDetected)) + " face(s)"
             img=cv2.imencode('.jpg', frame)[1].tostring()
+            b64 = base64.b64encode(bytes(img))
+
+            try:
+                json = '{"CameraLocation":"%s","location":{"type":"Point","coordinates":[%s]},"Image":"%s"}' % (cfg.cameraLocation, cfg.geoPoint, b64)
+                client.publish(iot.hubTopicPublish, json)
+            except KeyboardInterrupt:
+                print("IoTHubClient sample stopped")
+                return
+            except:
+                print("Unexpected error")
+
+            print("Image: " + str(count) + " Found " + str(len(facesDetected)) + " face(s)")
+            sleep(20)
 
         count=count + 1
-        sleep(20)
+        sleep(5)
 
 
 

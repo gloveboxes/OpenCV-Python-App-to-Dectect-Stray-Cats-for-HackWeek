@@ -1,7 +1,7 @@
 {
   "IotHubAddress":"CatFinder.azure-devices.net",
-  "DeviceId":"kfc-oxford-st",
-  "SharedAccessKey":"2JSDercBxtBiVMfREDGNzwSD/2nqJnRINz+G8hwXmXM=",
+  "DeviceId":"kfc-bondi-junction",
+  "SharedAccessKey":"+LcmMX7biWS8jKV2mn00y2F69hArZVUmAkz/2W4ggHc=",
   "CameraLocation":"Bondi Junction, NSW",
   "GeoPoint":"-33.8915363,151.2439356"
 }

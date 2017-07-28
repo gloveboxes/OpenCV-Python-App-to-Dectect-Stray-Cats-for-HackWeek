@@ -34,9 +34,8 @@ class Config():
             self.hubAddress = config['IotHubAddress']
             self.deviceId = config['DeviceId']
             self.sharedAccessKey = config['SharedAccessKey']
-            self.CameraLocation = config['CameraLocation']
-            self.GeoPoint = config['GeoPoint']
-            GeoPoint
+            self.cameraLocation = config['CameraLocation']
+            self.geoPoint = config['GeoPoint']
         except:
             self.config_defaults()
 
